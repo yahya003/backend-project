@@ -42,4 +42,31 @@ describe("GET: /api/topics", () => {
   })
 
 
-                  
+  describe("GET: /api/topics", () => {
+    test("200: responds with correct article", () => {
+     return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((response) => {
+        const {
+          body: { article },
+        } = response;
+        expect(article).toEqual({"article_id": 1, "author": "butter_bridge", "body": "I find this existence challenging", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100})
+      })
+    })
+  
+    test("404: responds with error for an incorrect route", () => {
+          return request(app)
+           .get("/api/articl/1")
+           .expect(404)
+    })
+    
+    test("400: responds with error for bad request", () => {
+        return request(app)
+         .get("/api/articles/whereAreYou")
+         .expect(400)
+      })
+    })
+  
+  
+                    
