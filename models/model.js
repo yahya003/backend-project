@@ -7,7 +7,7 @@ exports.fetchTopics = () => {
         )
     .then(({ rows }) => {
         if (rows.length == 0) {
-            return Promise.reject({status: 404, msg: "This article does not exist"})
+            return Promise.reject({status: 404, msg: "This data does not exist"})
          }
          else { 
       return rows;
@@ -44,7 +44,7 @@ exports.fetchArticleByID = (article_id) => {
           )
       .then(({ rows }) => {
         if (rows.length == 0) {
-            return Promise.reject({status: 404, msg: "This article does not exist"})
+            return Promise.reject({status: 404, msg: "This data does not exist"})
          }
         else { 
         return rows;
