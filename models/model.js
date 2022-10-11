@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const articles = require("../db/data/test-data/articles");
 
 exports.fetchTopics = () => {  
   return db
@@ -52,3 +53,24 @@ exports.fetchArticleByID = (article_id) => {
     })
       
   };
+
+  exports.fetchAndPatchArticleByID = (article_id, inc_vote) => {
+    return db
+    .query(`
+       UPDATE articles 
+       SET votes = votes + $2
+       WHERE article_id = $1 RETURNING *;`,
+      [article_id, inc_vote]
+    )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+          return Promise.reject({status: 404, msg: "This data does not exist"})
+       }
+      else { 
+      return rows[0];
+      }  
+    })
+      
+  };
+
+ 
