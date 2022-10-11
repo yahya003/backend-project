@@ -19,12 +19,13 @@ exports.fetchTopics = () => {
 
 exports.fetchArticleByID = (article_id) => {  
     return db
-    .query(
-      `SELECT articles.*
-       FROM articles
-       JOIN comments ON comments.article_id = articles.article_id
-       WHERE articles.article_id = $1
-       GROUP BY articles.article_id`, [article_id]
+    .query( `
+    SELECT articles.*, COUNT (comments.comment_id) AS comment_count 
+    FROM articles
+    JOIN comments ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id`, [article_id]
+    
     )
       .then(({ rows }) => {
         if (rows.length == 0) {
@@ -54,13 +55,13 @@ exports.fetchArticleByID = (article_id) => {
       
   };
 
-  exports.fetchAndPatchArticleByID = (article_id, inc_vote) => {
+  exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
     return db
     .query(`
        UPDATE articles 
        SET votes = votes + $2
        WHERE article_id = $1 RETURNING *;`,
-      [article_id, inc_vote]
+      [article_id, inc_votes]
     )
       .then(({ rows }) => {
         if (rows.length == 0) {
