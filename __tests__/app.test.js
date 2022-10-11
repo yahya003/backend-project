@@ -10,7 +10,7 @@ afterAll(() => {
   return db.end();
 });
 
-describe("GET: /api/topics", () => {
+describe("3. GET: /api/topics", () => {
   test("200: responds with correct topics", () => {
    return request(app)
     .get("/api/topics")
@@ -42,7 +42,7 @@ describe("GET: /api/topics", () => {
   })
 
 
-  describe("GET: /api/articles/:article_id", () => {
+  describe("4. GET: /api/articles/:article_id", () => {
     test("200: responds with correct article", () => {
      return request(app)
       .get("/api/articles/1")
@@ -75,7 +75,7 @@ describe("GET: /api/topics", () => {
     })
   
   
-describe("GET: /api/users", () => {
+describe("5. GET: /api/users", () => {
   test("200: responds with correct users", () => {
     return request(app)
       .get("/api/users")
@@ -117,4 +117,53 @@ describe("GET: /api/users", () => {
       .expect(404)
     })
 })
-      
+
+describe('6. PATCH /api/articles/:article_id  ', () => {
+test("200: responds with updated votes", () => {
+  const newVote = {
+    inc_vote: 3
+  }
+  return request(app)
+    .patch("/api/articles/6")
+    .send(newVote)
+    .expect(200)
+    .then((response) => {
+      const {
+        body: { article },
+      } = response;
+      expect(article).toEqual(
+        {"article_id": 6, "author": "icellusedkars", "body": "Delicious tin of cat food", "created_at": "2020-10-18T01:00:00.000Z", "title": "A", "topic": "mitch", "votes": 3}
+      )
+  })
+ })
+
+ test("400: responds with invalid input for a bad request", () => {
+  const newVote = {
+    inc_vote: 3
+  }
+  return request(app)
+    .patch("/api/articles/%")
+    .send(newVote)
+    .expect(400)
+ })
+
+ test("404: responds with not found error if the article doesn't exist but the entry is valid", () => {
+  const newVote = {
+    inc_vote: 3
+  }
+  return request(app)
+    .patch("/api/articles/1000")
+    .send(newVote)
+    .expect(404)
+ })
+
+ test("500: responds with server error if the newVote does not contain the key inc_vote", () => {
+  const newVote = {
+    vote: 3
+  }
+  return request(app)
+    .patch("/api/articles/6")
+    .send(newVote)
+    .expect(500)
+ })
+})
