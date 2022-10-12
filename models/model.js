@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const articles = require("../db/data/test-data/articles");
 
 exports.fetchTopics = () => {  
   return db
@@ -74,4 +73,23 @@ exports.fetchArticleByID = (article_id) => {
       
   };
 
- 
+  exports.fetchArticles = () => {  
+    return db
+    .query( `
+    SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
+    FROM articles
+    JOIN comments ON comments.article_id = articles.article_id
+    GROUP BY articles.article_id
+    ORDER BY articles.article_id DESC
+    `
+    )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+           return Promise.reject({status: 404, msg: "This article does not exist"})
+        }
+        else {
+        return rows
+        }  
+    })
+      
+  };

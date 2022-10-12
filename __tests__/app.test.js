@@ -163,13 +163,58 @@ test("200: responds with updated votes", () => {
  })
 })
 
-describe("Path entered doesn't match an existing path", () => {
-  test("404: responds with error for a route that is not available", () => {
-  return request(app)
-    .get("/api/user")
-    .expect(404)
-    .then(({body})=> {
-      expect(body.msg).toBe("The endpoint does not exist")
+
+
+describe("8. GET: /api/articles", () => {
+  
+  test("200: responds with correct content keys", () => {
+   return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then((response) => {
+      let {
+        _body: articles
+      } = response
+      articles = articles.article
+          articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              })
+            )
+           })
+          })
+        })
+        
+  test("200: responds with articles in descending order", () => {
+    return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response)=> {
+          const {
+            _body: { article },
+          } = response;
+          expect(article).toBeSortedBy(`article_id`, {
+            descending: true
+          })
+        })
+      })
     })
-})
-})
+
+    describe("Path entered doesn't match an existing path", () => {
+      test("404: responds with error for a route that is not available", () => {
+      return request(app)
+        .get("/api/user")
+        .expect(404)
+        .then(({body})=> {
+          expect(body.msg).toBe("The endpoint does not exist")
+        })
+      })
+    })
