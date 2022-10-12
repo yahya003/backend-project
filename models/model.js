@@ -80,7 +80,7 @@ exports.fetchArticleByID = (article_id) => {
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.article_id DESC
+    ORDER BY articles.created_at DESC
     `
     )
       .then(({ rows }) => {

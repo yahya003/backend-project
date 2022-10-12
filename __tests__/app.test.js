@@ -201,7 +201,7 @@ describe("8. GET: /api/articles", () => {
           const {
             _body: { article },
           } = response;
-          expect(article).toBeSortedBy(`article_id`, {
+          expect(article).toBeSortedBy(`created_at`, {
             descending: true
           })
         })
