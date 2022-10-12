@@ -27,8 +27,8 @@ exports.getUsers = (req, res, next) => {
 
 exports.patchArticleByID = (req, res, next) => {
   const {article_id} = req.params
-  const {inc_vote} = req.body
-  fetchAndPatchArticleByID(article_id, inc_vote)
+  const {inc_votes} = req.body
+  fetchAndPatchArticleByID(article_id, inc_votes)
   .then((article) => {
       res.status(200).send({ article });
 })

@@ -3,6 +3,7 @@ const data = require("../db/data/test-data");
 const db = require("../db/connection");
 const app = require("../app");
 const request = require("supertest");
+const { response } = require("../app");
 beforeEach(() => {
     return seed(data);
   });
@@ -33,17 +34,11 @@ describe("3. GET: /api/topics", () => {
       }])
         })
     })
-
-    test("404: responds with error for an incorrect route", () => {
-        return request(app)
-         .get("/api/topic")
-         .expect(404)
-    })
   })
 
 
-  describe("4. GET: /api/articles/:article_id", () => {
-    test("200: responds with correct article", () => {
+  describe("4. and 7. GET: /api/articles/:article_id (comments_count)", () => {
+    test("200: responds with correct (updated) article with comments_count", () => {
      return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -51,28 +46,36 @@ describe("3. GET: /api/topics", () => {
         const {
           body: { article },
         } = response;
-        expect(article).toEqual({"article_id": 1, "author": "butter_bridge", "body": "I find this existence challenging", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100})
-      })
+        expect(article).toEqual({"article_id": 1, "author": "butter_bridge", "body": "I find this existence challenging", "comment_count": "11", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100})
     })
-  
-    test("404: responds with error for an incorrect route", () => {
+  })
+    test("400: responds with error for an incorrect route", () => {
           return request(app)
-           .get("/api/articl/1")
-           .expect(404)
+           .get("/api/articles/notAvailable")
+           .expect(400)
+           .then(({body})=> {
+            expect(body.msg).toBe("Bad Request")
+          })
     })
 
     test("404: responds with error for a route that is not available although is valid", () => {
         return request(app)
           .get("/api/articles/200")
           .expect(404)
-                  })
+          .then(({body})=> {
+            expect(body.msg).toBe("This article does not exist")
+          })
+    })
     
     test("400: responds with error for bad request", () => {
         return request(app)
          .get("/api/articles/whereAreYou")
-         .expect(400)
+         .expect(400)   
+      .then(({body})=> {
+        expect(body.msg).toBe("Bad Request")
       })
     })
+  })
   
   
 describe("5. GET: /api/users", () => {
@@ -111,17 +114,13 @@ describe("5. GET: /api/users", () => {
     })
   })
       
-  test("404: responds with error for an incorrect route", () => {
-    return request(app)
-      .get("/api/user")
-      .expect(404)
-    })
+
 })
 
 describe('6. PATCH /api/articles/:article_id  ', () => {
 test("200: responds with updated votes", () => {
   const newVote = {
-    inc_vote: 3
+    inc_votes: 3
   }
   return request(app)
     .patch("/api/articles/6")
@@ -139,31 +138,38 @@ test("200: responds with updated votes", () => {
 
  test("400: responds with invalid input for a bad request", () => {
   const newVote = {
-    inc_vote: 3
+    inc_votes: 3
   }
   return request(app)
-    .patch("/api/articles/%")
+    .patch("/api/articles/biij")
     .send(newVote)
     .expect(400)
+    .then(({body})=> {
+      expect(body.msg).toBe("Bad Request")
+    })
  })
 
  test("404: responds with not found error if the article doesn't exist but the entry is valid", () => {
   const newVote = {
-    inc_vote: 3
+    inc_votes: 3
   }
   return request(app)
     .patch("/api/articles/1000")
     .send(newVote)
     .expect(404)
+    .then(({body})=> {
+      expect(body.msg).toBe("This data does not exist")
+    })
  })
+})
 
- test("500: responds with server error if the newVote does not contain the key inc_vote", () => {
-  const newVote = {
-    vote: 3
-  }
+describe("Path entered doesn't match an existing path", () => {
+  test("404: responds with error for a route that is not available", () => {
   return request(app)
-    .patch("/api/articles/6")
-    .send(newVote)
-    .expect(500)
- })
+    .get("/api/user")
+    .expect(404)
+    .then(({body})=> {
+      expect(body.msg).toBe("The endpoint does not exist")
+    })
+})
 })
