@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const articles = require("../db/data/test-data/articles");
 
 exports.fetchTopics = () => {  
   return db
@@ -20,7 +19,7 @@ exports.fetchTopics = () => {
 exports.fetchArticleByID = (article_id) => {  
     return db
     .query( `
-    SELECT articles.*, COUNT (comments.comment_id) AS comment_count 
+    SELECT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
     WHERE articles.article_id = $1
@@ -74,4 +73,29 @@ exports.fetchArticleByID = (article_id) => {
       
   };
 
- 
+  exports.fetchArticles = (topic) => {
+    let queryStr = ''
+
+    if (topic != undefined) {
+      queryStr = `WHERE articles.topic = '${topic}'`
+    }
+    return db
+    .query( `
+    SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
+    FROM articles
+    JOIN comments ON comments.article_id = articles.article_id
+    ${queryStr}
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC
+    `
+    )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+           return Promise.reject({status: 404, msg: "The endpoint does not exist"})
+        }
+        else {
+        return rows
+        }  
+    })
+      
+  };
