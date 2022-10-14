@@ -31,6 +31,18 @@ exports.checkExists = async (table, column, value) => {
   const dbOutput = await db.query(queryStr, [value]);
   if (dbOutput.rows.length === 0) {
     // resource does NOT exist
-    return Promise.reject({ status: 404, msg: 'Article not found' });
+    if (table == "comments") {
+    return Promise.reject({ status: 404, msg: 'Comment not found' });
   }
+    else if(table == "articles") {
+      return Promise.reject({ status: 404, msg: 'Article not found' });
+  }
+
+    else if(table == "Users") {
+      return Promise.reject({ status: 404, msg: 'User not found' });
+  }
+  else if(table == "topics") {
+    return Promise.reject({ status: 404, msg: 'Topic not found' });
+}
+ }
 }
