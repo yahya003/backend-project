@@ -150,3 +150,23 @@ exports.addCommentByArticleID = (article_id, username, body) => {
       }) 
     })
 };
+
+
+
+exports.fetchAndDeleteCommentByID = (comment_id) => {
+  if ((!(comment_id)) || isNaN(comment_id) == true) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+
+  const checkCommentExists = checkExists('comments','comment_id', comment_id)
+  return checkCommentExists
+
+    .then(() => {
+      return db.query(
+        `DELETE FROM comments 
+        WHERE comment_id = $1`, [comment_id])
+      })
+  .then(({rows}) => {
+    return rows
+  })
+}

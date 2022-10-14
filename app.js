@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 app.use(express.json())
-const {getTopics, getUsers, getArticles, getArticleByID, patchArticleByID, getCommentsFromArticleByID, postCommentsByArticleID} = require("./controllers/controller");
+const {getTopics, getUsers, getArticles, getArticleByID, patchArticleByID, getCommentsFromArticleByID, postCommentsByArticleID, deleteCommentByID} = require("./controllers/controller");
 
 
 //Topics
@@ -15,10 +15,13 @@ app.get("/api/users", getUsers);
 // Articles
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleByID);
-app.get("/api/articles/:article_id/comments", getCommentsFromArticleByID);
-app.post("/api/articles/:article_id/comments",postCommentsByArticleID)
 app.patch("/api/articles/:article_id", patchArticleByID);
 
+
+// Comments 
+app.get("/api/articles/:article_id/comments", getCommentsFromArticleByID);
+app.post("/api/articles/:article_id/comments",postCommentsByArticleID)
+app.delete("/api/comments/:comment_id", deleteCommentByID)
 
 
 // Error Handling

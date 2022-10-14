@@ -1,4 +1,4 @@
-const {fetchTopics, fetchUsers, fetchArticles ,fetchArticleByID, fetchCommentsFromArticleByID, fetchAndPatchArticleByID, addCommentByArticleID, } = require("../models/model");
+const {fetchTopics, fetchUsers, fetchArticles ,fetchArticleByID, fetchCommentsFromArticleByID, fetchAndPatchArticleByID, addCommentByArticleID,fetchAndDeleteCommentByID } = require("../models/model");
 
 
 exports.getTopics = (req, res, next) => {
@@ -68,6 +68,16 @@ exports.postCommentsByArticleID = (req, res, next) => {
   addCommentByArticleID(article_id, username, body)
     .then((comment) => {
       res.status(201).send({ comment });
+   })
+  .catch(next)
+};
+
+
+exports.deleteCommentByID = (req, res, next) => {
+  const {comment_id} = req.params
+  fetchAndDeleteCommentByID(comment_id)
+    .then(() => {
+      res.status(204).send();
    })
   .catch(next)
 };

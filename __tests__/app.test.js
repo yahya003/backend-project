@@ -318,7 +318,7 @@ describe("8. and 11. GET: /api/articles", () => {
           })
         })
 
-        test("404: Error if articleid does not exist but is valid", () => {
+        test("404: Error if article_id does not exist but is valid", () => {
           const newComment = {
             username: 'icellusedkars',
             body: 'This is impossible'
@@ -332,7 +332,33 @@ describe("8. and 11. GET: /api/articles", () => {
           })
           })
     })
-  
+
+
+    describe('12. DELETE /api/comments/:comment_id', () => {
+    test("204: deletes article", () => {
+      return request(app)
+          .delete("/api/comments/1")
+          .expect(204)
+        })
+
+    test("404: Error if comment_id does not exist but is valid", () => {
+          return request(app)
+          .delete("/api/comments/200")
+          .expect(404)
+          .then(({body}) => {
+            expect(body.msg).toEqual("Comment not found")
+          })
+          })
+
+    test("400: Error if comment_id is NaN", () => {
+            return request(app)
+            .delete("/api/comments/hello")
+            .expect(400)
+            .then(({body}) => {
+              expect(body.msg).toEqual("Bad Request")
+            })
+            })
+      })
 
     describe("Path entered doesn't match an existing path", () => {
       test("404: responds with error for a route that is not available", () => {
