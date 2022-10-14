@@ -1,10 +1,16 @@
 const db = require("../db/connection");
+<<<<<<< HEAD
 const { checkExists } = require("../db/seeds/utils");
+=======
+>>>>>>> ef51b7e7ea380264ab2758dd7ba68cee0f422e0a
 
 exports.fetchTopics = () => {  
   return db
-    .query(`SELECT * FROM topics`)
+    .query(
+        `SELECT * FROM topics`     
+        )
     .then(({ rows }) => {
+<<<<<<< HEAD
       if (rows.length == 0) {
         return Promise.reject({status: 404, msg: "This data does not exist"})
       }
@@ -70,10 +76,26 @@ exports.fetchArticleByID = (article_id) => {
   .then(() => {
     return db
     .query(`
+=======
+        if (rows.length == 0) {
+            return Promise.reject({status: 404, msg: "This data does not exist"})
+         }
+         else { 
+      return rows;
+         }
+    })
+    
+};
+
+exports.fetchArticleByID = (article_id) => {  
+    return db
+    .query( `
+>>>>>>> ef51b7e7ea380264ab2758dd7ba68cee0f422e0a
     SELECT articles.*, COUNT (comments.comment_id) AS comment_count 
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
     WHERE articles.article_id = $1
+<<<<<<< HEAD
     GROUP BY articles.article_id`, [article_id])
   })
       .then(({ rows }) => {
@@ -117,6 +139,41 @@ exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
   return checkUserExists
   .then(() =>{
   return db
+=======
+    GROUP BY articles.article_id`, [article_id]
+    
+    )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+           return Promise.reject({status: 404, msg: "This article does not exist"})
+        }
+        else {
+        return rows[0];
+        }  
+    })
+      
+  };
+
+
+  exports.fetchUsers = () => {  
+    return db
+      .query(
+          `SELECT * FROM users`     
+          )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+            return Promise.reject({status: 404, msg: "This data does not exist"})
+         }
+        else { 
+        return rows;
+        }  
+    })
+      
+  };
+
+  exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
+    return db
+>>>>>>> ef51b7e7ea380264ab2758dd7ba68cee0f422e0a
     .query(`
        UPDATE articles 
        SET votes = votes + $2
@@ -124,6 +181,7 @@ exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
       [article_id, inc_votes]
     )
       .then(({ rows }) => {
+<<<<<<< HEAD
         return rows[0]  
       })
     })
@@ -150,3 +208,35 @@ exports.addCommentByArticleID = (article_id, username, body) => {
       }) 
     })
 };
+=======
+        if (rows.length == 0) {
+          return Promise.reject({status: 404, msg: "This data does not exist"})
+       }
+      else { 
+      return rows[0];
+      }  
+    })
+      
+  };
+
+  exports.fetchArticles = () => {  
+    return db
+    .query( `
+    SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
+    FROM articles
+    JOIN comments ON comments.article_id = articles.article_id
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC
+    `
+    )
+      .then(({ rows }) => {
+        if (rows.length == 0) {
+           return Promise.reject({status: 404, msg: "This article does not exist"})
+        }
+        else {
+        return rows
+        }  
+    })
+      
+  };
+>>>>>>> ef51b7e7ea380264ab2758dd7ba68cee0f422e0a
