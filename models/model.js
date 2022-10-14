@@ -27,18 +27,26 @@ exports.fetchUsers = () => {
 
 
 
-exports.fetchArticles = (sort_by, order) => {
+exports.fetchArticles = (sort_by, order, topic) => {
+  let queryStr = ''
+  
   if (sort_by == undefined) {
     sort_by = 'created_at'
   }
   if (order == undefined) {
     order = 'DESC'
   }
+  if (topic != undefined) {
+    queryStr= `WHERE topic = '${topic}'` 
+  } 
 
   if (!['votes', 'created_at','author','article_id'].includes(sort_by)) {
     return Promise.reject({ status: 400, msg: 'Invalid sort query' });
   }
   if (!['ASC', 'DESC'].includes(order)) {
+    return Promise.reject({ status: 400, msg: 'Invalid order query' });
+  }
+    if (!['mitch', 'cats', 'paper', undefined].includes(topic)) {
     return Promise.reject({ status: 400, msg: 'Invalid order query' });
   }
 
@@ -47,6 +55,7 @@ exports.fetchArticles = (sort_by, order) => {
     SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
+    ${queryStr}
     GROUP BY articles.article_id
     ORDER BY ${sort_by} ${order}`)
       .then(({ rows }) => {
@@ -54,7 +63,10 @@ exports.fetchArticles = (sort_by, order) => {
           return Promise.reject({status: 404, msg: "This article does not exist"})
         }
         
-        else {return rows}  
+        else {
+         
+          return rows
+        }  
       }) 
   };
 
