@@ -65,8 +65,8 @@ exports.fetchArticleByID = (article_id) => {
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
 
-  const checkUserExists = checkExists('articles','article_id', article_id)
-  return checkUserExists
+  const checkArticleExists = checkExists('articles','article_id', article_id)
+  return checkArticleExists
   .then(() => {
     return db
     .query(`
@@ -88,8 +88,8 @@ exports.fetchCommentsFromArticleByID = (article_id) => {
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
 
-  const checkUserExists = checkExists('articles','article_id', article_id)
-  return checkUserExists
+  const checkArticleExists = checkExists('articles','article_id', article_id)
+  return checkArticleExists
     .then(() => {
       return db.query(
         `SELECT comments.comment_id, comments.body, comments.author, comments.created_at, comments.votes
@@ -113,8 +113,8 @@ exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
   
-  const checkUserExists = checkExists('articles','article_id', article_id)
-  return checkUserExists
+  const checkArticleExists = checkExists('articles','article_id', article_id)
+  return checkArticleExists
   .then(() =>{
   return db
     .query(`
@@ -137,8 +137,8 @@ exports.addCommentByArticleID = (article_id, username, body) => {
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
 
-  const checkUserExists = checkExists('articles','article_id', article_id)
-  return checkUserExists
+  const checkArticleExists = checkExists('articles','article_id', article_id)
+  return checkArticleExists
   .then(() => {
   return db
     .query(

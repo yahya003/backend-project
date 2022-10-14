@@ -268,7 +268,7 @@ describe("8. and 11. GET: /api/articles", () => {
           expect(comments).toEqual([])
         })
         })
-        test("404: Error if articleid does not exist but is valid", () => {
+        test("404: Error if article_id does not exist but is valid", () => {
           return request(app)
           .get("/api/articles/200/comments")
           .expect(404)
