@@ -36,8 +36,7 @@ exports.patchArticleByID = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const {topic} = req.query
-  fetchArticles(topic)
+  fetchArticles()
   .then((article) => {
       res.status(200).send({ article });
 })
