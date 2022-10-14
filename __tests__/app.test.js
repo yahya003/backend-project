@@ -368,6 +368,6 @@ describe("8. and 11. GET: /api/articles", () => {
         .then(({body})=> {
           expect(body.msg).toBe("The endpoint does not exist")
         })
-      })
+      });
     })
 
