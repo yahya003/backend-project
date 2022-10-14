@@ -22,7 +22,8 @@ exports.getUsers = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
   const sort_by = req.query.sort_by
   const order = req.query.order
-  fetchArticles(sort_by, order)
+  const topic = req.query.topic
+  fetchArticles(sort_by, order, topic)
     .then((article) => {
       res.status(200).send({ article });
    })

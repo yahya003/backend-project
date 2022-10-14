@@ -158,36 +158,40 @@ test("200: responds with updated votes", () => {
 
 describe("8. and 11. GET: /api/articles", () => {
   
-  test("200: responds with correct content keys", () => {
-   return request(app)
-    .get("/api/articles")
-    .expect(200)
-    .then((response) => {
-      let {
-        _body: articles
-      } = response
-      articles = articles.article
-      if (articles.length == 0) {
-        return Promise.reject({status: 404, msg: "This article does not exist"})
-      }
-      else{
-          articles.forEach((article) => {
-            expect(article).toEqual(
-              expect.objectContaining({
-                article_id: expect.any(Number),
-                title: expect.any(String),
-                topic: expect.any(String),
-                author: expect.any(String),
-                body: expect.any(String),
-                created_at: expect.any(String),
-                votes: expect.any(Number),
-                comment_count: expect.any(Number),
-              })
-            )
-           })
-          }
-          })
+    test("200: responds with correct content keys", () => {
+     return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        let {
+          _body: {article}
+        } = response
+        
+        
+        if(article.length == 0) {
+            Promise.reject({status: 400, msg: "Articles not found"})}
+        
+        else {        
+            article.forEach((eachArticle) => {
+              expect(eachArticle).toEqual(
+                expect.objectContaining({
+                  article_id: expect.any(Number),
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: expect.any(Number),
+                })
+              )
+             })
+            }
         })
+    })
+
+
+        
         
   test("200: responds with articles in descending order by date", () => {
     return request(app)
@@ -204,7 +208,7 @@ describe("8. and 11. GET: /api/articles", () => {
       })
       test("200: responds with articles in ascending order by a chosen filter", () => {
         return request(app)
-            .get("/api/articles?sort_by=article_id&order=ASC")
+            .get("/api/articles?topic=mitch&order=ASC&sort_by=article_id")
             .expect(200)
             .then((response)=> {
               const {
@@ -213,10 +217,24 @@ describe("8. and 11. GET: /api/articles", () => {
               expect(article).toBeSortedBy(`article_id`, {
                 ascending: true
               })
+              article.forEach((eachArticle) => {
+                expect(eachArticle).toEqual(
+                  expect.objectContaining({
+                    article_id: expect.any(Number),
+                    title: expect.any(String),
+                    topic: 'mitch',
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(Number),
+                  }) 
+                )
+              })
             })
+           })
           })
           
-        })
   
 
 
