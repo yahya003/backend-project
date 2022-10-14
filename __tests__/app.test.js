@@ -49,6 +49,14 @@ describe("3. GET: /api/topics", () => {
         expect(article).toEqual({"article_id": 1, "author": "butter_bridge", "body": "I find this existence challenging", "comment_count": "11", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100})
     })
   })
+    test("400: responds with error for an incorrect route", () => {
+          return request(app)
+           .get("/api/articles/notAvailable")
+           .expect(400)
+           .then(({body})=> {
+            expect(body.msg).toBe("Bad Request")
+          })
+    })
 
     test("404: responds with error for a route that is not available although is valid", () => {
         return request(app)
@@ -67,15 +75,6 @@ describe("3. GET: /api/topics", () => {
         expect(body.msg).toBe("Bad Request")
       })
     })
-
-    test("400: responds with error for an incorrect route", () => {
-      return request(app)
-       .get("/api/articles/notAvailable")
-       .expect(400)
-       .then(({body})=> {
-        expect(body.msg).toBe("Bad Request")
-      })
-})
   })
   
   
@@ -118,7 +117,7 @@ describe("5. GET: /api/users", () => {
 
 })
 
-describe('6. PATCH: /api/articles/:article_id  ', () => {
+describe('6. PATCH /api/articles/:article_id  ', () => {
 test("200: responds with updated votes", () => {
   const newVote = {
     inc_votes: 3
@@ -207,103 +206,7 @@ describe("8. GET: /api/articles", () => {
           })
         })
       })
-      
     })
-
-    describe("9. GET: /api/articles/:article_id/comments", () => {
-      test("200: responds with correct (updated) article with comments_count", () => {
-       return request(app)
-        .get("/api/articles/5/comments")
-        .expect(200)
-        .then((response) => {
-          const {
-            body: { article },
-          } = response;
-          expect(article).toEqual([
-            {
-              comment_id: 15,
-              body: "I am 100% sure that we're not completely sure.",
-              author: 'butter_bridge',
-              created_at: '2020-11-24T00:08:00.000Z',
-              votes: 1
-            },
-            {
-              comment_id: 14,
-              body: 'What do you see? I have no idea where this will lead us. This place I speak of, is known as the Black Lodge.',
-              author: 'icellusedkars',
-              created_at: '2020-06-09T05:00:00.000Z',
-              votes: 16
-            }
-          ])
-        })
-      })
-
-      test("200: responds with the comments in descending order by date", () => {
-        return request(app)
-         .get("/api/articles/5/comments")
-         .expect(200)
-         .then((response) => {
-           const {
-             body: { article },
-           } = response;
-           expect(article).toBeSortedBy(`created_at`, {
-             descending: true
-           })
-         })
-       })
-       
-       test("404: responds with error for a route that is not available although is valid", () => {
-        return request(app)
-          .get("/api/articles/200/comments")
-          .expect(404)
-          .then(({body})=> {
-            expect(body.msg).toBe("This article does not exist")
-          })
-    })
-    })
-
-
-    describe("10. POST /api/articles/:article_id/comments",() => {
-    test("201: responds with newly created object containing correct keys", () => {
-      const newComment = {
-        username: 'icellusedkars',
-        body: 'This is impossible'
-      }
-      return request(app)
-        .post("/api/articles/1/comments")
-        .send(newComment)
-        .expect(201)
-        .then((response => {
-          const {
-            body: { article },
-          } = response
-          expect(article).toEqual(
-            expect.objectContaining({
-              article_id: expect.any(Number),
-              author: expect.any(String),
-              body: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              comment_id: expect.any(Number),
-            })
-          )
-        }))
-      })
-      test("400: responds with error for a route that has the wrong data type", () => {
-        const newComment = {
-          username: 'icellusedkars',
-          body: 'This is impossible'
-        }
-        return request(app)
-          .post("/api/articles/huh/comments")
-          .send(newComment)
-          .expect(400)
-          .then(({body})=> {
-            expect(body.msg).toBe("Bad Request")
-          })
-        })
-    })
-  
 
     describe("Path entered doesn't match an existing path", () => {
       test("404: responds with error for a route that is not available", () => {
@@ -315,4 +218,3 @@ describe("8. GET: /api/articles", () => {
         })
       })
     })
-
