@@ -3,9 +3,7 @@ const { checkExists } = require("../db/seeds/utils");
 
 exports.fetchTopics = () => {  
   return db
-    .query(
-        `SELECT * FROM topics`     
-        )
+    .query(`SELECT * FROM topics`)
     .then(({ rows }) => {
       if (rows.length == 0) {
         return Promise.reject({status: 404, msg: "This data does not exist"})
@@ -126,7 +124,6 @@ exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
       [article_id, inc_votes]
     )
       .then(({ rows }) => {
-
         return rows[0]  
       })
     })
@@ -170,34 +167,6 @@ exports.fetchAndDeleteCommentByID = (comment_id) => {
         WHERE comment_id = $1`, [comment_id])
       })
   .then(({rows}) => {
-  
-        if (rows.length == 0) {
-          return Promise.reject({status: 404, msg: "This data does not exist"})
-       }
-      else { 
-      return rows[0];
-      }  
-    })
-  }
-
-  exports.fetchArticles = () => {  
-    return db
-    .query( `
-    SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
-    FROM articles
-    JOIN comments ON comments.article_id = articles.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC
-    `
-    )
-      .then(({ rows }) => {
-        if (rows.length == 0) {
-           return Promise.reject({status: 404, msg: "This article does not exist"})
-        }
-        else {
-        return rows
-        }  
-    })
-      
-  };
-
+    return rows
+  })
+}
