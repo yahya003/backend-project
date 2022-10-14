@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-
+const { checkExists } = require("../db/seeds/utils");
 
 exports.fetchTopics = () => {  
   return db
@@ -27,19 +27,33 @@ exports.fetchUsers = () => {
 
 
 
-exports.fetchArticles = () => {  
+exports.fetchArticles = (sort_by, order) => {
+  if (sort_by == undefined) {
+    sort_by = 'created_at'
+  }
+  if (order == undefined) {
+    order = 'DESC'
+  }
+
+  if (!['votes', 'created_at','author','article_id'].includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: 'Invalid sort query' });
+  }
+  if (!['ASC', 'DESC'].includes(order)) {
+    return Promise.reject({ status: 400, msg: 'Invalid order query' });
+  }
+
   return db
     .query(`
     SELECT DISTINCT articles.*, COUNT (comments.comment_id) ::INT AS comment_count 
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC`
-    )
+    ORDER BY ${sort_by} ${order}`)
       .then(({ rows }) => {
         if (rows.length == 0) {
           return Promise.reject({status: 404, msg: "This article does not exist"})
         }
+        
         else {return rows}  
       }) 
   };
@@ -47,46 +61,61 @@ exports.fetchArticles = () => {
 
 
 exports.fetchArticleByID = (article_id) => {  
-  return db
+  if ((!(article_id)) || isNaN(article_id) == true) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+
+  const checkUserExists = checkExists('articles','article_id', article_id)
+  return checkUserExists
+  .then(() => {
+    return db
     .query(`
     SELECT articles.*, COUNT (comments.comment_id) AS comment_count 
     FROM articles
     JOIN comments ON comments.article_id = articles.article_id
     WHERE articles.article_id = $1
-    GROUP BY articles.article_id`, [article_id]
-    )
+    GROUP BY articles.article_id`, [article_id])
+  })
       .then(({ rows }) => {
-        if (rows.length == 0) {
-          return Promise.reject({status: 404, msg: "This article does not exist"})
-        }
-        else {return rows[0]}  
+        return rows[0]  
       }) 
 };
 
 
 
-exports.fetchCommentsFromArticleByID = (article_id) => {  
-  return db
-    .query(
-    `SELECT comments.comment_id, comments.body, comments.author, comments.created_at, comments.votes
-    FROM comments
-    JOIN articles
-    ON comments.article_id = articles.article_id
-    WHERE comments.article_id = $1
-    ORDER BY created_at DESC`, [article_id]
-    )
-   
-      .then(({ rows }) => {
-        if (rows.length == 0) {
-          return Promise.reject({status: 404, msg: "This article does not exist"})
-        }
-        else {return rows}  
-      }) 
-};
+exports.fetchCommentsFromArticleByID = (article_id) => {
+  if ((!(article_id)) || isNaN(article_id) == true) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
 
+  const checkUserExists = checkExists('articles','article_id', article_id)
+  return checkUserExists
+    .then(() => {
+      return db.query(
+        `SELECT comments.comment_id, comments.body, comments.author, comments.created_at, comments.votes
+        FROM comments
+        JOIN articles
+        ON comments.article_id = articles.article_id
+        WHERE comments.article_id = $1
+        ORDER BY created_at DESC`, [article_id])
+    })
+  .then(({rows}) => {
+    return rows
+  })
+}
 
+    
+  
+  
 
 exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
+  if ((!(article_id && inc_votes)) || isNaN(article_id || inc_votes) == true) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+  
+  const checkUserExists = checkExists('articles','article_id', article_id)
+  return checkUserExists
+  .then(() =>{
   return db
     .query(`
        UPDATE articles 
@@ -95,29 +124,29 @@ exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
       [article_id, inc_votes]
     )
       .then(({ rows }) => {
-        if (rows.length == 0) {
-          return Promise.reject({status: 404, msg: "This data does not exist"})
-       }
-      else {return rows[0]}  
-    })  
-};
+        return rows[0]  
+      })
+    })
+  }  
 
 
 
-exports.fetchAndPostCommentsByArticleID = (article_id, username, body) => {
-  if (!(article_id && username && body)) {
+
+exports.addCommentByArticleID = (article_id, username, body) => {
+  if ((!(article_id && username && body)) || isNaN(article_id) == true) {
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
 
+  const checkUserExists = checkExists('articles','article_id', article_id)
+  return checkUserExists
+  .then(() => {
   return db
     .query(
       `INSERT INTO comments (article_id, author , body)
       VALUES($1,$2,$3) RETURNING*;` , [article_id, username, body]
     )
       .then(({rows} ) => {
-        if (rows.length == 0) {
-          return Promise.reject({status: 404, msg: "This article does not exist"})
-        }
-        else {return rows[0]}  
+        return rows[0]  
       }) 
+    })
 };

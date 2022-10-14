@@ -1,4 +1,4 @@
-const {fetchTopics, fetchUsers, fetchArticles ,fetchArticleByID, fetchCommentsFromArticleByID, fetchAndPatchArticleByID, fetchAndPostCommentsByArticleID, } = require("../models/model");
+const {fetchTopics, fetchUsers, fetchArticles ,fetchArticleByID, fetchCommentsFromArticleByID, fetchAndPatchArticleByID, addCommentByArticleID, } = require("../models/model");
 
 
 exports.getTopics = (req, res, next) => {
@@ -20,7 +20,9 @@ exports.getUsers = (req, res, next) => {
 
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles()
+  const sort_by = req.query.sort_by
+  const order = req.query.order
+  fetchArticles(sort_by, order)
     .then((article) => {
       res.status(200).send({ article });
    })
@@ -41,8 +43,8 @@ exports.getArticleByID = (req, res, next) => {
 exports.getCommentsFromArticleByID = (req, res, next) => {
   const {article_id} = req.params
   fetchCommentsFromArticleByID(article_id)
-    .then((article) => {
-      res.status(200).send({ article });
+    .then((comments) => {
+      res.status(200).send({ comments });
    })
   .catch(next)
 };
@@ -63,9 +65,9 @@ exports.postCommentsByArticleID = (req, res, next) => {
   const {article_id} = req.params
   const username = req.body.username
   const body = req.body.body
-  fetchAndPostCommentsByArticleID(article_id, username, body)
-    .then((article) => {
-      res.status(201).send({ article });
+  addCommentByArticleID(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment });
    })
   .catch(next)
 };

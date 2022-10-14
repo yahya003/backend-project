@@ -30,8 +30,7 @@ describe("3. GET: /api/topics", () => {
       },
       {
         description: "what books are made of",
-        slug: "paper",
-      }])
+        slug: "paper",}])
         })
     })
   })
@@ -55,7 +54,7 @@ describe("3. GET: /api/topics", () => {
           .get("/api/articles/200")
           .expect(404)
           .then(({body})=> {
-            expect(body.msg).toBe("This article does not exist")
+            expect(body.msg).toBe("Article not found")
           })
     })
     
@@ -67,15 +66,6 @@ describe("3. GET: /api/topics", () => {
         expect(body.msg).toBe("Bad Request")
       })
     })
-
-    test("400: responds with error for an incorrect route", () => {
-      return request(app)
-       .get("/api/articles/notAvailable")
-       .expect(400)
-       .then(({body})=> {
-        expect(body.msg).toBe("Bad Request")
-      })
-})
   })
   
   
@@ -159,14 +149,14 @@ test("200: responds with updated votes", () => {
     .send(newVote)
     .expect(404)
     .then(({body})=> {
-      expect(body.msg).toBe("This data does not exist")
+      expect(body.msg).toBe("Article not found")
     })
  })
 })
 
 
 
-describe("8. GET: /api/articles", () => {
+describe("8. and 11. GET: /api/articles", () => {
   
   test("200: responds with correct content keys", () => {
    return request(app)
@@ -177,6 +167,10 @@ describe("8. GET: /api/articles", () => {
         _body: articles
       } = response
       articles = articles.article
+      if (articles.length == 0) {
+        return Promise.reject({status: 404, msg: "This article does not exist"})
+      }
+      else{
           articles.forEach((article) => {
             expect(article).toEqual(
               expect.objectContaining({
@@ -191,10 +185,11 @@ describe("8. GET: /api/articles", () => {
               })
             )
            })
+          }
           })
         })
         
-  test("200: responds with articles in descending order", () => {
+  test("200: responds with articles in descending order by date", () => {
     return request(app)
         .get("/api/articles")
         .expect(200)
@@ -207,36 +202,47 @@ describe("8. GET: /api/articles", () => {
           })
         })
       })
-      
-    })
+      test("200: responds with articles in ascending order by a chosen filter", () => {
+        return request(app)
+            .get("/api/articles?sort_by=article_id&order=ASC")
+            .expect(200)
+            .then((response)=> {
+              const {
+                _body: { article },
+              } = response;
+              expect(article).toBeSortedBy(`article_id`, {
+                ascending: true
+              })
+            })
+          })
+          
+        })
+  
+
 
     describe("9. GET: /api/articles/:article_id/comments", () => {
-      test("200: responds with correct (updated) article with comments_count", () => {
+      test("200: responds with correct comments", () => {
        return request(app)
         .get("/api/articles/5/comments")
         .expect(200)
         .then((response) => {
           const {
-            body: { article },
+            body: { comments },
           } = response;
-          expect(article).toEqual([
-            {
-              comment_id: 15,
-              body: "I am 100% sure that we're not completely sure.",
-              author: 'butter_bridge',
-              created_at: '2020-11-24T00:08:00.000Z',
-              votes: 1
-            },
-            {
-              comment_id: 14,
-              body: 'What do you see? I have no idea where this will lead us. This place I speak of, is known as the Black Lodge.',
-              author: 'icellusedkars',
-              created_at: '2020-06-09T05:00:00.000Z',
-              votes: 16
-            }
-          ])
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            )
+           })
+         })
         })
-      })
+    
 
       test("200: responds with the comments in descending order by date", () => {
         return request(app)
@@ -244,27 +250,36 @@ describe("8. GET: /api/articles", () => {
          .expect(200)
          .then((response) => {
            const {
-             body: { article },
+             body: { comments },
            } = response;
-           expect(article).toBeSortedBy(`created_at`, {
+           expect(comments).toBeSortedBy(`created_at`, {
              descending: true
            })
          })
        })
-       
-       test("404: responds with error for a route that is not available although is valid", () => {
+       test("200: Responds if article exists but has no comments linked", () => {
         return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then((response) => {
+          const {
+            body: { comments },
+          } = response;
+          expect(comments).toEqual([])
+        })
+        })
+        test("404: Error if articleid does not exist but is valid", () => {
+          return request(app)
           .get("/api/articles/200/comments")
           .expect(404)
-          .then(({body})=> {
-            expect(body.msg).toBe("This article does not exist")
+          .then(({body}) => {
+            expect(body.msg).toEqual("Article not found")
           })
-    })
-    })
-
+          })
+      })
 
     describe("10. POST /api/articles/:article_id/comments",() => {
-    test("201: responds with newly created object containing correct keys", () => {
+    test("201: responds with newly created comment", () => {
       const newComment = {
         username: 'icellusedkars',
         body: 'This is impossible'
@@ -275,16 +290,16 @@ describe("8. GET: /api/articles", () => {
         .expect(201)
         .then((response => {
           const {
-            body: { article },
+            body: { comment },
           } = response
-          expect(article).toEqual(
+          expect(comment).toEqual(
             expect.objectContaining({
-              article_id: expect.any(Number),
-              author: expect.any(String),
-              body: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              comment_id: expect.any(Number),
+              "article_id": 1,
+              "author": "icellusedkars",
+              "body": "This is impossible",
+              "comment_id": 19,
+              "created_at": expect.any(String),
+              "votes": 0,
             })
           )
         }))
@@ -302,6 +317,20 @@ describe("8. GET: /api/articles", () => {
             expect(body.msg).toBe("Bad Request")
           })
         })
+
+        test("404: Error if articleid does not exist but is valid", () => {
+          const newComment = {
+            username: 'icellusedkars',
+            body: 'This is impossible'
+          }
+          return request(app)
+          .post("/api/articles/200/comments")
+          .send(newComment)
+          .expect(404)
+          .then(({body}) => {
+            expect(body.msg).toEqual("Article not found")
+          })
+          })
     })
   
 
