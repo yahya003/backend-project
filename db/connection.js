@@ -15,3 +15,6 @@ const config =
         },
       }
     : {};
+
+    
+module.exports = new Pool(config);
