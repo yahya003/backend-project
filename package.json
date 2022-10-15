@@ -4,11 +4,11 @@
   "description": "bc-nc-news",
   "main": "index.js",
   "scripts": {
+    "start": "node listen.js",
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
     "prepare": "husky install",
-    "start": "node listen.js",
     "seed:prod": "NODE_ENV=production DATABASE_URL=$(heroku config:get DATABASE_URL) npm run seed"
   },
   "repository": {
@@ -26,13 +26,13 @@
     "husky": "^7.0.0",
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
-    "jest-sorted": "^1.0.14",
-    "pg-format": "^1.0.4"
+    "jest-sorted": "^1.0.14"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "pg": "^8.7.3",
+    "pg": "^8.8.0",
+    "pg-format": "^1.0.4",
     "supertest": "^6.3.0"
   },
   "jest": {
