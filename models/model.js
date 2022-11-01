@@ -121,7 +121,9 @@ exports.fetchCommentsFromArticleByID = (article_id) => {
   
 
 exports.fetchAndPatchArticleByID = (article_id, inc_votes) => {
-  
+  if ((!(article_id && inc_votes)) || isNaN(article_id || inc_votes) == true) {
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
   
   const checkArticleExists = checkExists('articles','article_id', article_id)
   return checkArticleExists
