@@ -40,7 +40,7 @@ exports.fetchArticles = (sort_by, order, topic) => {
     queryStr= `WHERE topic = '${topic}'` 
   } 
 
-  if (!['votes', 'created_at','author','article_id'].includes(sort_by)) {
+  if (!['votes', 'created_at','author','article_id', 'comment_count'].includes(sort_by)) {
     return Promise.reject({ status: 400, msg: 'Invalid sort query' });
   }
   if (!['ASC', 'DESC'].includes(order)) {
@@ -64,7 +64,6 @@ exports.fetchArticles = (sort_by, order, topic) => {
         }
         
         else {
-         
           return rows
         }  
       }) 
