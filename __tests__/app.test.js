@@ -11,6 +11,7 @@ afterAll(() => {
   return db.end();
 });
 
+
 describe("3. GET: /api/topics", () => {
   test("200: responds with correct topics", () => {
    return request(app)

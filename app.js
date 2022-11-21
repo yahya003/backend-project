@@ -8,6 +8,11 @@ app.use(express.json())
 
 const {getTopics, getUsers, getArticles, getArticleByID, patchArticleByID, getCommentsFromArticleByID, postCommentsByArticleID, deleteCommentByID} = require("./controllers/controller");
 
+const endpoints = require('./endpoints.json')
+
+app.get("/", (req, res) => {
+  res.status(200).send(endpoints)
+})
 
 //Topics
 app.get("/api/topics", getTopics);
